@@ -1,0 +1,143 @@
+@startuml uml
+class User {
+    + User()
+    + User(const string &username, const string &password) : username(username), password(password)
+    + verifyCredentials(const string &enteredUsername, const string &enteredPassword): bool
+    + {abstract} showuser(): void
+    - username: string
+    - password: string
+}
+
+
+class Admin {
+    + Admin()
+    + Admin(const string &username, const string &password) : User(username, password)
+    + {abstract}showuser(): void
+    + {static}printmenu(): void
+}
+
+abstract class System {
+    + {abstract} ~System()
+    + {abstract} changePassword(): void
+    + {abstract} changePassword(const string &name_s): void
+}
+
+class Student {
+    + Student()
+    + Student(const string &username, const string &password) : User(username, password): void
+    + loginUser(username: string, password: string): bool
+    + {abstract}: void
+    + getCurrentUser(): string
+    + getCurrentRole(): string
+    + clearCurrentUser(): void
+    + displayMemberInfo(username: string): void
+    + changeMemberInfo(username: string, newPassword: string): void
+    - users: map<string, User>
+    - currentUser: string
+    - currentRole: string
+}
+
+class StudentManager {
+    + StudentManager()
+    + addStudent(name: string, id: string, username: string, password: string): void
+    + deleteStudent(username: string): void
+    + showAllStudents(): void
+    + getStudent(username: string): StudentUser&
+    + displayMemberInfo(username: string): void override
+    + changeMemberInfo(username: string, newPassword: string): void override
+    - students: map<string, StudentUser>
+}
+
+class TeacherManager {
+    + TeacherManager()
+    + addTeacher(name: string, id: string, username: string, password: string): void
+    + deleteTeacher(username: string): void
+    + showAllTeachers(): void
+    + getTeacher(username: string): TeacherUser&
+    + addTeachingCourse(username: string, course: string): void
+    + displayTeachingCourses(username: string): void
+    + displayMemberInfo(username: string): void override
+    + changeMemberInfo(username: string, newPassword: string): void override
+    - teachers: map<string, TeacherUser>
+}
+
+class CourseManager {
+    + CourseManager()
+    + addCourse(courseCode: string, courseName: string, teacher: string, studentLimit: int): void
+       + deleteCourse(courseCode: string): void
+    + showAllCourses(): void
+    + getCourse(courseCode: string): Course&
+    + enrollStudentInCourse(courseCode: string, studentId: string): void
+    + dropStudentFromCourse(courseCode: string, studentId: string): void
+    + displayMemberInfo(courseCode: string): void override
+    - courses: map<string, Course>
+}
+
+class Course {
+    + Course()
+    + Course(name: string, teacher: string)
+    + getName(): string
+    + getTeacher(): string
+    + setName(newName: string): void
+    + setTeacher(newTeacher: string): void
+    + getEnrolledStudents(): vector<string>
+    + getCourseCode(): string
+    + setCourseCode(newCourseCode: string): void
+    + getStudentLimit(): int
+    + setStudentLimit(newStudentLimit: int): void
+    + getCurrentEnrollment(): int
+    + enrollStudent(studentId: string): void
+    + dropStudent(studentId: string): void
+    - name: string
+    - teacher: string
+    - enrolledStudents: vector<string>
+    - courseCode: string
+    - studentLimit: int
+    - currentEnrollment: int
+}
+
+class UI {
+    -userManager: UserManager
+    -courseManager: CourseManager
+    -studentManager: StudentManager
+    -teacherManager: TeacherManager
+    -logger: Logger
+
+    +UI(userManager: UserManager, courseManager: CourseManager, studentManager: StudentManager, teacherManager: TeacherManager)
+    +start(): void
+    -getInput(prompt: string): string
+}
+
+class Logger {
+    -logFile: ofstream
+
+    +Logger(filename: string)
+    +~Logger()
+    +log(message: string): void
+}
+
+class CourseFileReader {
+    + CourseFileReader(courseManager: CourseManager)
+    + readCourses(fileName: string): void
+    - courseManager: CourseManager
+}
+
+
+Admin --|> User
+Student --|> User
+TeacherManager --|> Manager
+CourseManager --|> Manager
+User <|-- StudentUser
+User <|-- TeacherUser
+StudentManager o-- StudentUser
+TeacherManager o-- TeacherUser
+CourseManager o-- Course
+UserManager o-- User
+UI --> UserManager
+UI --> CourseManager
+UI --> StudentManager
+UI --> TeacherManager
+UI --> Logger
+CourseFileReader --> CourseManager
+
+@enduml
